@@ -26,16 +26,6 @@ public_users.get('/',function (req, res) {
     res.json(JSON.parse(JSON.stringify(books)));
 });
 
-public_users.get('/async-books', function (req, res) {
-    axios.get('http://localhost:5000/')
-        .then(response => {
-            res.json(response.data);
-        })
-        .catch(error => {
-            res.status(500).json({ message: "Error fetching book list", error: error.message });
-        });
-});
-
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
   const isbn = req.params.isbn;
@@ -92,6 +82,53 @@ public_users.get('/review/:isbn',function (req, res) {
   } else {
     res.status(404).json({ message: "Book not found" });
   }
+});
+
+public_users.get('/async-books', function (req, res) {
+    axios.get('http://localhost:5000/')
+        .then(response => {
+            res.json(response.data);
+        })
+        .catch(error => {
+            res.status(500).json({ message: "Error fetching book list", error: error.message });
+        });
+});
+
+// Using Promise callbacks to fetch book details by ISBN
+public_users.get('/async-isbn/:isbn', function (req, res) {
+    const isbn = req.params.isbn;
+
+    axios.get(`http://localhost:5000/isbn/${isbn}`)
+        .then(response => {
+            res.json(response.data);
+        })
+        .catch(error => {
+            res.status(500).json({ message: "Error fetching book details", error: error.message });
+        });
+});
+
+// Using async-await to fetch book details by author
+public_users.get('/async-author/:author', async function (req, res) {
+    const author = req.params.author;
+
+    try {
+        const response = await axios.get(`http://localhost:5000/author/${author}`);
+        res.json(response.data);
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching books by author", error: error.message });
+    }
+});
+
+public_users.get('/async-title/:title', function (req, res) {
+    const title = req.params.title;
+
+    axios.get(`http://localhost:5000/title/${title}`)
+        .then(response => {
+            res.json(response.data);
+        })
+        .catch(error => {
+            res.status(500).json({ message: "Error fetching books by title", error: error.message });
+        });
 });
 
 module.exports.general = public_users;
